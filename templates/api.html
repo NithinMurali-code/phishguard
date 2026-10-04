@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block body %}
+<h1>API</h1><p class="sub">Use PhishGuard from your own scripts, mail servers or apps. Everything you scan this way lands in the same database and history.</p>
+<div class="card"><h2>Your API key</h2><p><code>{{ key }}</code></p><p class="mute">Send it in an <code>X-API-Key</code> header. Keep it private.</p>
+<form method="post" action="{{ url_for('regen') }}" onsubmit="return confirm('The old key will stop working. Continue?')"><button class="alt">Generate new key</button></form></div>
+<div class="card"><h2>Scan an email</h2><pre>curl -X POST {{ base }}/api/v1/scan \
+  -H "X-API-Key: {{ key }}" -H "Content-Type: application/json" \
+  -d '{"sender":"PayPal &lt;help@paypal-secure.xyz&gt;","subject":"Account suspended","body":"Verify now: http://192.168.4.7/login"}'</pre>
+<p class="mute" style="margin-top:10px">Returns <code>verdict</code>, <code>score</code>, <code>reasons</code>, <code>urls</code> and the saved <code>id</code>. Add <code>"save": false</code> to skip storing it.</p></div>
+<div class="card"><h2>Python example</h2><pre>import requests
+r = requests.post("{{ base }}/api/v1/scan", headers={"X-API-Key": "{{ key }}"},
+                  json={"sender": "a@b.com", "subject": "Hi", "body": "Meeting at 3?"})
+print(r.json()["verdict"], r.json()["score"])</pre></div>
+<div class="card"><h2>Endpoints</h2><table><tr><th>Method</th><th>Path</th><th>What it does</th></tr>
+<tr><td>GET</td><td><code>/api/v1/health</code></td><td>Status check (no key needed)</td></tr>
+<tr><td>POST</td><td><code>/api/v1/scan</code></td><td>Scan an email: sender, subject, body</td></tr>
+<tr><td>POST</td><td><code>/api/v1/check-url</code></td><td>Check a single link: <code>{"url": "https://..."}</code></td></tr>
+<tr><td>GET</td><td><code>/api/v1/scans</code></td><td>List history (?q=, ?verdict=, ?limit=)</td></tr>
+<tr><td>GET</td><td><code>/api/v1/scans/&lt;id&gt;</code></td><td>One scan with full details</td></tr>
+<tr><td>GET</td><td><code>/api/v1/stats</code></td><td>Totals and 7-day activity</td></tr></table></div>{% endblock %}

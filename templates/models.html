@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block body %}
+<h1>Model lab</h1><p class="sub">How the detector was chosen, how it performs, and what it has learned.</p>
+<div class="card"><h2>Algorithm comparison</h2>
+{% if res %}<table><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>Train time</th></tr>
+{% set best = res.results | map(attribute='f1') | max %}
+{% for m in res.results %}<tr style="{{ 'background:rgba(31,111,92,.1)' if m.f1 == best }}"><td><b>{{ m.name }}</b></td><td>{{ m.accuracy }}%</td><td>{{ m.precision }}%</td><td>{{ m.recall }}%</td><td>{{ m.f1 }}%</td><td class="mute">{{ m.seconds }}s</td></tr>{% endfor %}</table>
+<p class="mute" style="margin-top:10px">Same data and same 80/20 split for every model: {{ res.train }} training and {{ res.test }} test emails, run {{ res.ran_at }}. Highlighted = best F1. Logistic Regression is deployed because it is fast, scores well and its decisions can be explained.</p>
+{% else %}<p class="mute">Not run yet.</p>{% endif %}
+<form method="post" onsubmit="this.querySelector('button').textContent='Running (about 30s)...';this.querySelector('button').disabled=true"><button class="alt">Re-run comparison</button></form></div>
+{% if res %}{% set cm = res.results[0].cm %}<div class="two"><div class="card"><h2>Confusion matrix (deployed model)</h2>
+<table style="text-align:center"><tr><th></th><th>Predicted legit</th><th>Predicted scam</th></tr>
+<tr><th>Actually legit</th><td style="background:rgba(46,125,79,.2)"><b>{{ cm[0][0] }}</b><br><span class="mute">correct</span></td><td style="background:rgba(192,57,43,.15)"><b>{{ cm[0][1] }}</b><br><span class="mute">false alarm</span></td></tr>
+<tr><th>Actually scam</th><td style="background:rgba(192,57,43,.15)"><b>{{ cm[1][0] }}</b><br><span class="mute">missed</span></td><td style="background:rgba(46,125,79,.2)"><b>{{ cm[1][1] }}</b><br><span class="mute">caught</span></td></tr></table></div>
+<div class="card"><h2>Deployed model today</h2><p>Accuracy on held-out real emails: <b>{{ meta.real_accuracy }}%</b> ({{ meta.real_n }} emails)<br>Overall: {{ meta.accuracy }}% &middot; precision {{ meta.precision }}% &middot; recall {{ meta.recall }}%</p>
+<p class="mute">Trained {{ meta.trained_at }} on {{ meta.samples }} emails.</p></div></div>{% endif %}
+<div class="card"><h2>What the model has learned</h2><p class="mute">The words and phrases that push an email toward each verdict (largest model weights).</p>
+<p><b style="color:var(--bad)">Scam signals</b></p><p>{% for w in pos %}<code style="margin:2px;display:inline-block">{{ w }}</code> {% endfor %}</p>
+<p style="margin-top:12px"><b style="color:var(--safe)">Legitimate signals</b></p><p>{% for w in neg %}<code style="margin:2px;display:inline-block">{{ w }}</code> {% endfor %}</p>
+<p class="mute" style="margin-top:10px">Legitimate signals reflect the style of the real business emails in the training data, which is one reason to add your own mail and retrain.</p></div>{% endblock %}

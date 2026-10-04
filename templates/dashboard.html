@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% block body %}
+<div class="hero-box"><div style="flex:1"><h1>Got a suspicious email?</h1><span style="opacity:.85">Paste it below and get a verdict in a second.</span>
+<form method="post" action="{{ url_for('scan') }}"><textarea name="body" placeholder="Paste the email text here..." required></textarea>
+<div class="row"><button>Check it</button><a class="btn" style="background:rgba(255,255,255,.2);color:#fff" href="{{ url_for('quiz') }}">Or test yourself: spot the phish</a></div></form></div></div>
+<div class="grid"><div class="stat"><b data-count="{{ s.total }}">0</b><span>emails scanned</span></div>
+<div class="stat"><b style="color:var(--bad)" data-count="{{ s.phishing }}">0</b><span>phishing caught</span></div>
+<div class="stat"><b style="color:var(--warn)" data-count="{{ s.suspicious }}">0</b><span>suspicious</span></div>
+<div class="stat"><b style="color:var(--safe)" data-count="{{ s.safe }}">0</b><span>safe</span></div></div>
+<div class="two"><div class="card"><h2>Results breakdown</h2><div style="display:flex;gap:18px;align-items:center">
+{% set C = 326.7 %}{% set t = s.total or 1 %}{% set p = s.phishing / t * C %}{% set w = s.suspicious / t * C %}{% set g = s.safe / t * C %}
+<svg class="donut" viewBox="0 0 140 140"><g transform="rotate(-90 70 70)" fill="none" stroke-width="16"><circle cx="70" cy="70" r="52" stroke="var(--line)"/>
+{% if s.total %}<circle cx="70" cy="70" r="52" stroke="var(--bad)" stroke-dasharray="{{ p }} {{ C }}"/>
+<circle cx="70" cy="70" r="52" stroke="var(--warn)" stroke-dasharray="{{ w }} {{ C }}" stroke-dashoffset="{{ -p }}"/>
+<circle cx="70" cy="70" r="52" stroke="var(--safe)" stroke-dasharray="{{ g }} {{ C }}" stroke-dashoffset="{{ -(p + w) }}"/>{% endif %}</g>
+<text x="70" y="76" text-anchor="middle" font-size="22" font-family="Georgia">{{ s.total }}</text></svg>
+<div class="legend"><p style="margin:4px 0"><span style="background:var(--bad)"></span>Phishing {{ s.phishing }}</p><p style="margin:4px 0"><span style="background:var(--warn)"></span>Suspicious {{ s.suspicious }}</p><p style="margin:4px 0"><span style="background:var(--safe)"></span>Safe {{ s.safe }}</p></div></div></div>
+<div class="card"><h2>Last 7 days</h2><div class="week">
+{% for d in s.week %}<div><div class="bar" style="height:{{ (d.n / s.wmax * 90) | int + 4 }}px"><i style="height:{{ (d.p / d.n * 100) | int if d.n else 0 }}%"></i></div>{{ d.label }}</div>{% endfor %}
+</div></div></div>
+<div class="two"><div class="card"><h2>Security tip</h2><p class="tip" id="tip"></p><button class="alt sm" onclick="nextTip()">Another tip</button></div>
+<div class="card"><h2>Riskiest sender domains</h2>
+{% for t in s.top %}<p style="margin:6px 0"><code>{{ t.d }}</code> <span class="mute">flagged {{ t.n }}x</span></p>{% else %}<p class="mute">Nothing flagged yet.</p>{% endfor %}</div></div>
+<div class="card"><h2>Recent scans</h2>{% if recent %}<table><tr><th>Subject</th><th>Sender</th><th>Result</th><th>When</th></tr>
+{% for r in recent %}<tr><td><a href="{{ url_for('detail', sid=r.id) }}">{{ r.subject or '(no subject)' }}</a></td><td class="mute">{{ r.sender_domain or '-' }}</td>
+<td><span class="tag {{ r.verdict|lower }}">{{ r.verdict }} {{ r.score }}</span></td><td class="mute">{{ r.ts }}</td></tr>{% endfor %}</table>
+{% else %}<p class="mute">No scans yet - paste an email above to get started.</p>{% endif %}</div>
+<p class="mute">Protected by {{ "{:,}".format(feed) }} known phishing domains{% if fed %} (updated {{ fed }}){% endif %}. Accuracy on {{ meta.real_n }} held-out real emails: {{ meta.real_accuracy }}% (overall {{ meta.accuracy }}%). Real-world results will vary.</p>
+<script>const T=["Hover over a link before clicking - the real address shows at the bottom of your browser.","Banks and PayPal never ask for your password by email.","Urgent deadlines ('within 24 hours') are the #1 pressure trick.","An unexpected attachment from a known sender can still be a hacked account - ask them.","A padlock (HTTPS) doesn't mean a site is safe - scammers use it too.","Generic greetings like 'Dear customer' are a red flag from a bank that knows your name.","Typing the company's website yourself beats clicking any email link.","Got a prize you never entered for? It's a scam."];let ti=Math.floor(Math.random()*T.length);function nextTip(){tip.textContent=T[ti++%T.length]}nextTip()</script>
+{% endblock %}

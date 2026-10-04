@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block body %}
+<h1>Data &amp; settings</h1><p class="sub">Teach PhishGuard your own senders and data.</p>
+<div class="two">{% for kind,title,hint,rows in [('allow','Trusted domains','Emails from these senders are marked safe (unless they fail authentication).',allow),('block','Blocked domains','Emails from, or linking to, these are always marked phishing.',block)] %}
+<div class="card"><h2>{{ title }}</h2><p class="mute">{{ hint }}</p><form class="row" method="post" action="{{ url_for('add_domain') }}"><input type="hidden" name="kind" value="{{ kind }}">
+<input name="domain" placeholder="example.com" style="flex:1;margin:0"><button>Add</button></form>
+{% for d in rows %}<form method="post" action="{{ url_for('remove_domain', did=d.id) }}" style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><code>{{ d.domain }}</code><button class="alt sm">Remove</button></form>{% endfor %}</div>{% endfor %}</div>
+<div class="card"><h2>Threat intelligence</h2><p>Every link and sender is checked against <b>{{ "{:,}".format(feed) }}</b> real, known phishing domains ({{ fsrc }}{% if fed %}, {{ fed }}{% endif %}).</p>
+<form method="post" action="{{ url_for('feed_update') }}"><button>Update from internet</button></form>
+<form method="post" action="{{ url_for('intel_settings') }}" style="margin-top:14px"><label><input type="checkbox" name="live" style="width:auto;margin:0 6px 0 0" {{ 'checked' if live }}>Live lookups (domain age, SPF/DMARC records) - needs internet</label>
+<label style="margin-top:10px">Google Safe Browsing API key (optional){% if sbk %} - a key is saved{% endif %}</label><input name="sb_key" placeholder="paste key to add or replace" type="password">
+<div class="row"><button class="alt">Save</button>{% if sbk %}<button class="del" name="clear_key" value="1">Remove key</button>{% endif %}</div></form></div>
+<div class="card"><h2>Training data</h2><p>The model learns from <b>{{ info.rows }}</b> emails ({{ info.phishing }} scam/phishing, {{ info.legit }} legitimate): <b>{{ info.real }} real</b> emails from the public Enron-Spam corpus, {{ info.synthetic }} generated phishing/legit examples{% if info.user %}, and {{ info.user }} of yours{% endif %}. Stored in <code>data/emails.csv</code>.</p>
+<p class="mute">Add your own real emails to adapt it to the mail you actually get. Upload a CSV with a text column (text/body/message) and a label column (label/class/type) where phishing = 1, phishing, spam or scam.</p>
+<form class="row" method="post" action="{{ url_for('import_dataset') }}" enctype="multipart/form-data"><input type="file" name="file" accept=".csv" required style="width:auto;margin:0"><button class="alt">Import CSV</button></form></div>
+<div class="card"><h2>Model</h2><p>Accuracy on held-out <b>real</b> emails <b>{{ meta.real_accuracy }}%</b> ({{ meta.real_n }} emails) &middot; overall {{ meta.accuracy }}% &middot; precision {{ meta.precision }}% &middot; recall {{ meta.recall }}% &middot; F1 {{ meta.f1 }}%<br><span class="mute">Last trained {{ meta.trained_at }}. You have given {{ fb }} corrections in your scan history.</span></p>
+<form method="post" action="{{ url_for('retrain') }}"><button>Retrain model</button></form></div>{% endblock %}

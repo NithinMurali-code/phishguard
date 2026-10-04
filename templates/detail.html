@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block body %}
+{% set col = {'Safe':'var(--safe)','Suspicious':'var(--warn)','Phishing':'var(--bad)'}[s.verdict] %}
+<h1>{{ s.subject or '(no subject)' }}</h1><p class="sub">From {{ s.sender or 'unknown' }} &middot; {{ s.ts }} &middot; {{ s.source }}</p>
+<div class="card"><div class="hero"><svg class="ring" viewBox="0 0 130 130"><circle class="bg" cx="65" cy="65" r="54"/><circle class="fg" id="fg" cx="65" cy="65" r="54" stroke="{{ col }}" stroke-dasharray="339.3" stroke-dashoffset="339.3"/><text x="65" y="75" text-anchor="middle">{{ s.score }}</text></svg>
+<div><span class="tag {{ s.verdict|lower }}" style="font-size:17px;padding:5px 16px">{{ s.verdict }}</span>
+<p class="mute" style="margin:8px 0 0">Risk score out of 100<br>Model {{ s.ml }}% &middot; Rules {{ s.rules }}/100</p>
+<div class="row"><button class="alt sm" onclick="navigator.clipboard.writeText('PhishGuard: {{ s.verdict }} ({{ s.score }}/100) - {{ (s.subject or 'no subject')|replace("'", '') }}');this.textContent='Copied!'">Copy summary</button><button class="alt sm" onclick="print()">Print / save PDF</button></div></div></div>
+<h2 style="margin-top:16px">Why we think so</h2><ul class="why">{% for r in s.reasons %}<li>{{ r }}</li>{% endfor %}</ul></div>
+<div class="card"><h2>Message, with warning signs highlighted</h2><pre>{{ hl }}</pre><p class="mute" style="margin-top:8px"><mark class="url">links</mark> <mark class="kw">pressure or credential wording</mark> - hover for details.</p></div>
+{% if s.urls %}<div class="card"><h2>Links in this email</h2>{% for u in s.urls %}<p style="margin:5px 0"><code>{{ u }}</code></p>{% endfor %}<p class="mute">Don't click these unless you trust the sender.</p></div>{% endif %}
+<div class="card"><h2>Was our verdict right?</h2><p class="mute">{% if s.user_label is not none %}You marked this as <b>{{ 'phishing' if s.user_label else 'safe' }}</b>.{% else %}Your answer helps the model improve when you retrain it.{% endif %}</p>
+<div class="row"><form method="post" action="{{ url_for('feedback', sid=s.id) }}"><input type="hidden" name="label" value="1"><button class="del">This is phishing</button></form>
+<form method="post" action="{{ url_for('feedback', sid=s.id) }}"><input type="hidden" name="label" value="0"><button class="alt">This is safe</button></form>
+<form method="post" action="{{ url_for('delete', sid=s.id) }}" onsubmit="return confirm('Delete this scan?')"><button class="alt">Delete scan</button></form></div></div>
+<script>setTimeout(()=>fg.style.strokeDashoffset=339.3*(1-{{ s.score }}/100),80)</script>{% endblock %}

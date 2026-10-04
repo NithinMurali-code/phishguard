@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}PhishGuard{% endblock %}</title><script>document.documentElement.dataset.theme=localStorage.getItem('pg-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')</script><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
+<aside><div class="brand">PhishGuard<small>is this email safe?</small></div>
+{% for ep,label in [('dashboard','Dashboard'),('scan','Scan an email'),('history','History'),('bulk','Bulk scan'),('quiz','Spot the phish'),('models','Model lab'),('api_docs','API'),('settings','Data & settings')] %}
+<a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint==ep or (ep=='history' and request.endpoint=='detail') }}">{{ label }}</a>{% endfor %}<button class="theme" onclick="const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('pg-theme',t)" title="Toggle dark mode">&#9680; Theme</button></aside>
+<main>{% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}{% block body %}{% endblock %}</main><script>
+document.querySelectorAll('.flash').forEach((f,i)=>{f.classList.add('toast');f.style.top=(16+i*64)+'px';setTimeout(()=>f.classList.add('gone'),5200)});
+document.querySelectorAll('[data-count]').forEach(el=>{const to=+el.dataset.count,t0=performance.now();(function s(t){const p=Math.min((t-t0)/900,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(s)})(t0)});
+</script></body></html>

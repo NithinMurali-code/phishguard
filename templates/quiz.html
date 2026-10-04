@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block body %}
+<h1>Spot the phish</h1><p class="sub">10 emails from a real email dataset. Scam / spam, or legitimate? Can you beat the filter?</p>
+<div class="card" id="box"><div class="progress"><i id="pr" style="width:0"></i></div><div class="mute" id="meta"></div>
+<pre id="mail" style="margin-top:10px;max-height:300px"></pre>
+<div class="quizbtns"><button class="del" onclick="pick(1)">&#9888; Scam / phishing</button><button onclick="pick(0)">&#10003; Legitimate</button></div>
+<div id="res"></div></div>
+<div class="card" id="end" style="display:none;text-align:center"><div class="big" id="sc"></div><h2 id="rank" style="margin-top:8px"></h2><p class="mute" id="best"></p><button onclick="start()">Play again</button></div>
+<script>let n,score,cur,locked;const N=10;
+async function load(){locked=false;res.innerHTML='';cur=await(await fetch('/quiz/next')).json();mail.textContent=cur.text;meta.textContent='Question '+(n+1)+' of '+N+' - score '+score;pr.style.width=(n/N*100)+'%'}
+function start(){n=0;score=0;box.style.display='';end.style.display='none';load()}
+function pick(a){if(locked)return;locked=true;const ok=a===cur.label;if(ok)score++;
+res.innerHTML='<div class="answer '+(ok?'ok':'no')+'"><b>'+(ok?'Correct! ':'Not quite. ')+'This one is '+(cur.label?'a scam / spam email':'legitimate')+'.</b><ul class="why">'+cur.why.map(w=>'<li>'+w.replace(/</g,'&lt;')+'</li>').join('')+'</ul></div><div class="row"><button onclick="nextQ()">'+(n+1<N?'Next':'See result')+'</button></div>'}
+function nextQ(){n++;if(n<N)load();else finish()}
+function finish(){box.style.display='none';end.style.display='';sc.textContent=score+'/'+N;
+rank.textContent=score>=9?'Phish Hunter - you could train the filter':score>=7?'Sharp eyes':score>=5?'Getting there':'Easy target - keep practising';
+const b=Math.max(score,+localStorage.getItem('pg-best')||0);localStorage.setItem('pg-best',b);best.textContent='Your best: '+b+'/'+N}
+start()</script>{% endblock %}

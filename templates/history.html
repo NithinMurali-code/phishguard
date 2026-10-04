@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block body %}
+<h1>History</h1><p class="sub">Every email you've scanned, stored locally in a database.</p>
+<div class="card"><form class="filters" method="get"><input name="q" value="{{ q }}" placeholder="Search subject, sender or text"><select name="verdict">
+<option value="">All results</option>{% for x in ['Phishing','Suspicious','Safe'] %}<option {{ 'selected' if v==x }}>{{ x }}</option>{% endfor %}</select><button>Filter</button></form></div>
+<div class="card">{% if rows %}<table><tr><th>#</th><th>Subject</th><th>Sender</th><th>Result</th><th>You said</th><th>When</th></tr>
+{% for r in rows %}<tr><td class="mute">{{ r.id }}</td><td><a href="{{ url_for('detail', sid=r.id) }}">{{ r.subject or '(no subject)' }}</a></td><td class="mute">{{ r.sender_domain or '-' }}</td>
+<td><span class="tag {{ r.verdict|lower }}">{{ r.verdict }} {{ r.score }}</span></td><td class="mute">{{ {1:'phishing',0:'safe'}.get(r.user_label,'-') }}</td><td class="mute">{{ r.ts }}</td></tr>{% endfor %}</table>
+<div class="row" style="margin-top:14px"><a class="btn alt" href="{{ url_for('export') }}">Export CSV</a>
+<form method="post" action="{{ url_for('clear') }}" onsubmit="return confirm('Delete ALL history?')"><button class="del">Clear history</button></form></div>
+{% else %}<p class="mute">Nothing here yet.</p>{% endif %}</div>{% endblock %}

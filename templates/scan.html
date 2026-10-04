@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block body %}
+<h1>Scan an email</h1><p class="sub">Results update live as you type. Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run the full scan.</p>
+<div class="two"><div><form class="card" method="post" id="f"><label>From</label><input name="sender" id="sender" placeholder="PayPal Support &lt;help@paypal-secure.xyz&gt;">
+<label>Subject</label><input name="subject" id="subject"><label>Message</label><textarea name="body" id="body" placeholder="Paste the email text here..."></textarea>
+<button id="go">Check this email</button> <button type="button" class="alt" onclick="fill(0)">Phishing sample</button> <button type="button" class="alt" onclick="fill(1)">Safe sample</button></form>
+<div class="card live" id="live"><div style="display:flex;justify-content:space-between;align-items:center"><b>Live preview</b><span class="tag" id="lv"></span></div><div class="meter"><i id="lm" style="width:0"></i></div><ul class="why" id="lr"></ul></div></div>
+<form class="card" method="post" enctype="multipart/form-data" id="uf"><h2>Upload .eml</h2>
+<div class="drop" id="drop" onclick="file.click()">Drop a .eml file here<br><span class="mute">or click to browse</span></div><input type="file" name="file" id="file" accept=".eml" hidden>
+<p class="mute" style="margin-top:12px">Also checks SPF/DKIM results, Reply-To mismatches, hidden link text and risky attachments. In Gmail: open the message &rarr; &#8942; menu &rarr; Download message.</p></form></div>
+<script>const S=[["PayPal Support <help@paypal-secure.xyz>","URGENT: Account suspended","Dear customer, unusual activity was detected. Verify your password immediately or your account will be locked within 24 hours: http://192.168.4.7/paypal/signin"],
+["Priya <priya@company.com>","Sprint review Thursday","Hi team, the sprint review is at 3 PM Thursday. Notes: https://github.com/team/repo/pull/42 Thanks!"]];
+function fill(i){sender.value=S[i][0];subject.value=S[i][1];body.value=S[i][2];check()}
+let tm;function check(){clearTimeout(tm);tm=setTimeout(async()=>{const r=await(await fetch('/live-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sender:sender.value,subject:subject.value,body:body.value})})).json();
+live.classList.toggle('on',!r.empty);if(r.empty)return;const c={Safe:'var(--safe)',Suspicious:'var(--warn)',Phishing:'var(--bad)'}[r.verdict];lv.textContent=r.verdict+' '+r.score;lv.className='tag '+r.verdict.toLowerCase();
+lm.style.width=r.score+'%';lm.style.background=c;lr.innerHTML='';r.reasons.forEach(x=>{const li=document.createElement('li');li.textContent=x;lr.appendChild(li)})},450)}
+[sender,subject,body].forEach(e=>e.addEventListener('input',check));
+f.addEventListener('submit',()=>{go.disabled=true;go.textContent='Checking...'});
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')f.requestSubmit()});
+file.onchange=()=>uf.submit();['dragover','dragenter'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',e=>{file.files=e.dataTransfer.files;uf.submit()})</script>{% endblock %}

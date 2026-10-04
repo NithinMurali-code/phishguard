@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block body %}
+<h1>Bulk scan</h1><p class="sub">Check many emails at once from a CSV file (up to 300 rows). Results are also saved to History.</p>
+<div class="card"><form method="post" enctype="multipart/form-data" class="row" onsubmit="this.querySelector('button').textContent='Scanning...'"><input type="file" name="file" accept=".csv" required style="width:auto;margin:0"><button>Scan CSV</button>
+<a class="btn alt" href="{{ url_for('bulk_sample') }}">Download sample CSV</a></form><p class="mute" style="margin-top:10px">Columns: <code>body</code> (required), <code>subject</code>, <code>sender</code>.</p></div>
+{% if rows is not none %}{% set n = rows | length %}<div class="grid"><div class="stat"><b>{{ n }}</b><span>emails scanned</span></div>
+<div class="stat"><b style="color:var(--bad)">{{ rows | selectattr('verdict','equalto','Phishing') | list | length }}</b><span>phishing</span></div>
+<div class="stat"><b style="color:var(--warn)">{{ rows | selectattr('verdict','equalto','Suspicious') | list | length }}</b><span>suspicious</span></div>
+<div class="stat"><b style="color:var(--safe)">{{ rows | selectattr('verdict','equalto','Safe') | list | length }}</b><span>safe</span></div></div>
+<div class="card"><table><tr><th>Subject</th><th>Sender</th><th>Result</th><th>Main reason</th></tr>
+{% for r in rows %}<tr><td><a href="{{ url_for('detail', sid=r.id) }}">{{ r.subject or '(no subject)' }}</a></td><td class="mute">{{ r.sender or '-' }}</td>
+<td><span class="tag {{ r.verdict|lower }}">{{ r.verdict }} {{ r.score }}</span></td><td class="mute">{{ r.reason }}</td></tr>{% endfor %}</table>
+<textarea id="csvdata" hidden>{{ csv }}</textarea><div class="row" style="margin-top:14px"><button class="alt" onclick="const b=new Blob([csvdata.value],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='phishguard_results.csv';a.click()">Download results CSV</button></div></div>{% endif %}{% endblock %}
