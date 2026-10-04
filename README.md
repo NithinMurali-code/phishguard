@@ -33,6 +33,11 @@ risk estimate. Use the feedback buttons and retrain to adapt it to your own mail
 
 <img width="1920" height="1080" alt="Screenshot 2026-10-05 000318" src="https://github.com/user-attachments/assets/24d3f62a-e447-45c7-9995-1bb8011900fe" />
 
+<img width="1535" height="773" alt="Screenshot 2026-10-05 001453" src="https://github.com/user-attachments/assets/72c47889-d24e-4809-8701-6998da2b6c09" />
+
+<img width="1533" height="725" alt="Screenshot 2026-10-05 001512" src="https://github.com/user-attachments/assets/582151ae-6632-4a73-a3ac-52bd425d6b11" />
+
+
 <img width="1920" height="1080" alt="Screenshot 2026-10-05 000323" src="https://github.com/user-attachments/assets/1ceedb1f-4eb9-4b7f-a099-8ca27ddfe49b" />
 
 <img width="1920" height="1080" alt="Screenshot 2026-10-05 000329" src="https://github.com/user-attachments/assets/f04150a3-4e67-4629-bb0e-ce0e1507e5f4" />
