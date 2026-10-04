@@ -25,6 +25,8 @@ First start loads the phishing-domain database (a few seconds).
 ## Accuracy
 No detector is 100% accurate. A link on the known-phishing list is near-certain; everything else is a
 risk estimate. Use the feedback buttons and retrain to adapt it to your own mail.
+
+
 <img width="1920" height="1080" alt="Screenshot 2026-10-05 000304" src="https://github.com/user-attachments/assets/bc9951cb-edb1-4d9c-bdc8-3674e0f5717c" />
 <img width="1920" height="1080" alt="Screenshot 2026-10-05 000311" src="https://github.com/user-attachments/assets/94aaabab-ff29-4a05-a82d-c4d9f3b7ee56" />
 <img width="1920" height="1080" alt="Screenshot 2026-10-05 000318" src="https://github.com/user-attachments/assets/24d3f62a-e447-45c7-9995-1bb8011900fe" />
