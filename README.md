@@ -1,4 +1,4 @@
-# PhishGuard v3 - Email Phishing Detector
+# PhishGuard - Email Phishing Detector
 
 ## Run
 Windows: double-click `run.bat`   |   Mac/Linux: `./run.sh`
