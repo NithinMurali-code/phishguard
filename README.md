@@ -1,7 +1,5 @@
 # PhishGuard - Email Phishing Detector
 
----
-
 ## Run
 Windows: double-click `run.bat`   |   Mac/Linux: `./run.sh`
 Or: `pip install -r requirements.txt` then `python app.py` (opens http://127.0.0.1:5000).
