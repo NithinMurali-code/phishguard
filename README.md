@@ -1,4 +1,4 @@
-<img width="1535" height="777" alt="image" src="https://github.com/user-attachments/assets/b59a4db2-0d4a-42d9-9c78-7cdfed635240" /># PhishGuard - Email Phishing Detector
+# PhishGuard - Email Phishing Detector
 
 ---
 
